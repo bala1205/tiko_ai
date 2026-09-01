@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1063766834591",
+    "project_id": "tiko-6a169",
+    "storage_bucket": "tiko-6a169.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1063766834591:android:763f2a75ee0be9eb7911aa",
+        "android_client_info": {
+          "package_name": "com.example.tiko"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAr-qAhWnNWUqm8wADVT2fLnra8cFTGNEA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

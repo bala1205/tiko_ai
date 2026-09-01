@@ -1,0 +1,34 @@
+{
+  "firestore": {
+    "rules": "firestore.rules",
+    "indexes": "firestore.indexes.json"
+  },
+  "functions": [
+    {
+      "source": "functions",
+      "codebase": "default",
+      "ignore": ["node_modules", ".git", "firebase-debug.log", "firebase-debug.*.log", "*.local"],
+      "predeploy": ["npm --prefix \"$RESOURCE_DIR\" run build"]
+    }
+  ],
+  "flutter": {
+    "platforms": {
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "tiko-6a169",
+          "configurations": {
+            "android": "1:1063766834591:android:763f2a75ee0be9eb7911aa",
+            "web": "1:1063766834591:web:8fc08753d2ff1a337911aa"
+          }
+        }
+      },
+      "android": {
+        "default": {
+          "projectId": "tiko-6a169",
+          "appId": "1:1063766834591:android:763f2a75ee0be9eb7911aa",
+          "fileOutput": "android/app/google-services.json"
+        }
+      }
+    }
+  }
+}

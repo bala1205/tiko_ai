@@ -1,0 +1,34 @@
+project_id = "egnfsrrgdlhrdnzkykaw"
+
+[api]
+enabled = true
+port = 54321
+schemas = ["public", "storage", "graphql_public"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
+
+[db]
+port = 54322
+shadow_port = 54320
+major_version = 15
+
+[storage]
+enabled = true
+port = 54325
+file_size_limit = "50MiB"
+
+[auth]
+enabled = true
+port = 54321
+site_url = "http://localhost:3000"
+additional_redirect_urls = ["https://localhost:3000"]
+jwt_expiry = 3600
+enable_signup = true
+enable_confirmations = false
+enable_manual_linking = true
+
+[functions.chat-with-ai]
+enabled = true
+verify_jwt = true
+import_map = "./functions/chat-with-ai/import_map.json"
+entrypoint = "./functions/chat-with-ai/index.ts"

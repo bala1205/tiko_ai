@@ -1,0 +1,17 @@
+{
+  "name": "tiko-worker",
+  "version": "1.0.0",
+  "description": "Tiko AI - Cloudflare Worker NVIDIA proxy (replaces Firebase Functions)",
+  "private": true,
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20241127.0",
+    "typescript": "^5.4.0",
+    "wrangler": "^4.0.0"
+  }
+}

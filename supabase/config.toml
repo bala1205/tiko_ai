@@ -1,0 +1,7 @@
+project_id = "iwskfxgxeayyusiztrnt"
+
+[functions.chat-with-ai]
+enabled = true
+verify_jwt = true
+import_map = "./functions/chat-with-ai/import_map.json"
+entrypoint = "./functions/chat-with-ai/index.ts"
