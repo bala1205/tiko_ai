@@ -33,7 +33,10 @@ class _ChatPageState extends ConsumerState<ChatPage> {
   }
 
   Future<void> _handleSend(String text, {String? imageUrl, Uint8List? imageBytes, String? imageName}) async {
-    // Cloudinary upload: wait for valid secure_url, then send SAME url to Worker vision model
+    // Preserve original bytes for direct base64 to Cloudflare vision (avoids extra fetch hop).
+    // Still upload to Cloudinary for persistent chat history (secure_url).
+    Uint8List? originalBytes = imageBytes;
+    String? originalName = imageName;
     if (imageBytes != null && imageName != null) {
       final storage = StorageService();
       try {
@@ -46,11 +49,12 @@ class _ChatPageState extends ConsumerState<ChatPage> {
       }
     }
     // Ensure we never send a null/empty imageUrl when an image was selected — verification for Worker contract
-    if (imageBytes != null && (imageUrl == null || imageUrl.isEmpty)) {
+    if (originalBytes != null && (imageUrl == null || imageUrl.isEmpty)) {
       if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Image upload did not return a URL. Please try again.')));
       return;
     }
-    await ref.read(chatNotifierProvider.notifier).sendMessage(text, imageUrl: imageUrl);
+    // Pass both imageUrl (for Firestore history) and original bytes (for direct base64 to Worker)
+    await ref.read(chatNotifierProvider.notifier).sendMessage(text, imageUrl: imageUrl, imageBytes: originalBytes, imageName: originalName);
     _scrollToBottom();
   }
 

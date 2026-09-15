@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:typed_data';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
@@ -48,10 +51,7 @@ class MessageBubble extends StatelessWidget {
                 ),
               if (!isUser) const SizedBox(height: 6),
               if (message.imageUrl != null) ...[
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(12),
-                  child: Image.network(message.imageUrl!, height: 180, fit: BoxFit.cover, errorBuilder: (_, __, ___) => const Icon(Icons.broken_image)),
-                ),
+                _ImageWithSave(imageUrl: message.imageUrl!),
                 const SizedBox(height: 8),
               ],
               // Use selectable markdown for assistant, plain selectable text for user
@@ -95,13 +95,19 @@ class MessageBubble extends StatelessWidget {
                         onCopy?.call();
                       },
                     ),
+                    if (message.imageUrl != null)
+                      IconButton(
+                        tooltip: 'Save image',
+                        icon: const Icon(Icons.download_rounded, size: 18),
+                        onPressed: () => _handleSaveImage(context, message.imageUrl!),
+                      ),
                     if (onRegenerate != null)
                       IconButton(
                         tooltip: 'Regenerate',
                         icon: const Icon(Icons.refresh_rounded, size: 18),
                         onPressed: onRegenerate,
                       ),
-                  ] else
+                  ] else ...[
                     IconButton(
                       tooltip: 'Copy',
                       icon: Icon(Icons.content_copy_rounded, size: 16, color: scheme.onPrimaryContainer.withOpacity(0.7)),
@@ -110,10 +116,90 @@ class MessageBubble extends StatelessWidget {
                         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Copied to clipboard')));
                       },
                     ),
+                    if (message.imageUrl != null)
+                      IconButton(
+                        tooltip: 'Copy image URL',
+                        icon: Icon(Icons.link_rounded, size: 16, color: scheme.onPrimaryContainer.withOpacity(0.7)),
+                        onPressed: () => _handleSaveImage(context, message.imageUrl!),
+                      ),
+                  ]
                 ],
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+}
+
+void _handleSaveImage(BuildContext context, String imageUrl) {
+  // For data URIs and https URLs, copy URL and show hint.
+  // On web, browser allows right-click Save; on mobile, user can long-press.
+  Clipboard.setData(ClipboardData(text: imageUrl));
+  final isDataUri = imageUrl.startsWith('data:image/');
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(
+      content: Text(isDataUri ? 'Image data copied. Paste in browser to save.' : 'Image URL copied. Open in browser to save.'),
+      duration: const Duration(seconds: 2),
+    ),
+  );
+  // On web, also try to trigger download for https URLs via anchor (best-effort)
+  if (kIsWeb && !isDataUri) {
+    // No url_launcher, just clipboard feedback is enough; user can right-click image.
+  }
+}
+
+class _ImageWithSave extends StatelessWidget {
+  final String imageUrl;
+  const _ImageWithSave({required this.imageUrl});
+
+  @override
+  Widget build(BuildContext context) {
+    // Data URI handling: render via memory, otherwise network
+    if (imageUrl.startsWith('data:image/')) {
+      try {
+        final base64Part = imageUrl.split(',').length > 1 ? imageUrl.split(',')[1] : imageUrl;
+        final bytes = base64Decode(base64Part);
+        return ClipRRect(
+          borderRadius: BorderRadius.circular(12),
+          child: GestureDetector(
+            onTap: () => _showFullImage(context, bytes, isDataUri: true),
+            child: Image.memory(bytes, height: 220, fit: BoxFit.cover, width: double.infinity, errorBuilder: (_, __, ___) => const Icon(Icons.broken_image)),
+          ),
+        );
+      } catch (_) {
+        return const Icon(Icons.broken_image);
+      }
+    }
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(12),
+      child: GestureDetector(
+        onTap: () => _showFullImageNetwork(context, imageUrl),
+        child: Image.network(imageUrl, height: 220, fit: BoxFit.cover, width: double.infinity, errorBuilder: (_, __, ___) => const Icon(Icons.broken_image)),
+      ),
+    );
+  }
+
+  void _showFullImage(BuildContext context, Uint8List bytes, {required bool isDataUri}) {
+    showDialog(
+      context: context,
+      builder: (_) => Dialog(
+        insetPadding: const EdgeInsets.all(16),
+        child: InteractiveViewer(
+          child: Image.memory(bytes, fit: BoxFit.contain),
+        ),
+      ),
+    );
+  }
+
+  void _showFullImageNetwork(BuildContext context, String url) {
+    showDialog(
+      context: context,
+      builder: (_) => Dialog(
+        insetPadding: const EdgeInsets.all(16),
+        child: InteractiveViewer(
+          child: Image.network(url, fit: BoxFit.contain, errorBuilder: (_, __, ___) => const Padding(padding: EdgeInsets.all(24), child: Text('Failed to load image'))),
         ),
       ),
     );

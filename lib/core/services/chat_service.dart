@@ -110,16 +110,21 @@ class ChatService {
   Future<void> saveAssistantMessage({
     required String conversationId,
     required String content,
+    String? imageUrl,
   }) async {
     final msgRef = _firestore.collection('conversations').doc(conversationId).collection('messages').doc();
     await msgRef.set({
       'role': MessageRole.assistant.name,
       'content': content,
+      if (imageUrl != null && imageUrl.isNotEmpty) 'imageUrl': imageUrl,
       'createdAt': FieldValue.serverTimestamp(),
     });
+    final preview = imageUrl != null && imageUrl.isNotEmpty
+        ? (content.isNotEmpty ? '${content.substring(0, content.length > 40 ? 40 : content.length)} [Image]' : '[Generated Image]')
+        : (content.length > 80 ? '${content.substring(0, 80)}...' : content);
     await _firestore.collection('conversations').doc(conversationId).update({
       'updatedAt': FieldValue.serverTimestamp(),
-      'lastMessagePreview': content.length > 80 ? '${content.substring(0, 80)}...' : content,
+      'lastMessagePreview': preview,
     });
   }
 

@@ -35,6 +35,11 @@ class WorkerConfig {
   /// Worker index.ts handles POST /chat and POST /.
   static String get chatEndpoint => '$workerUrl/chat';
 
+  /// Cloudflare Workers AI endpoints (secure, token never in Flutter).
+  /// Backend validates Firebase ID token and proxies to Cloudflare AI REST.
+  static String get analyzeImageEndpoint => '$workerUrl/ai/analyze-image';
+  static String get generateImageEndpoint => '$workerUrl/ai/generate-image';
+
   /// Whether a custom URL has been provided (not the placeholder dev default).
   static bool get isConfigured => workerUrl.isNotEmpty && workerUrl.startsWith('https://');
 

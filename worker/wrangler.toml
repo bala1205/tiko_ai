@@ -11,9 +11,20 @@ FIREBASE_PROJECT_ID = "tiko-6a169"
 # Secrets required (set via wrangler secret put, never commit):
 # - NVIDIA_API_KEY                # NVIDIA Integrate API key
 # - FIREBASE_SERVICE_ACCOUNT_JSON # Full service account JSON string (or set FIREBASE_CLIENT_EMAIL + FIREBASE_PRIVATE_KEY)
+# - CLOUDFLARE_ACCOUNT_ID         # Cloudflare account ID for Workers AI REST (e.g., 45bffd31e733e40c05acdfef61152dd1)
+# - CLOUDFLARE_API_TOKEN          # Cloudflare Workers AI API token (minimum: Workers AI Read + Edit, never commit)
 # Optional if splitting the JSON:
 # - FIREBASE_CLIENT_EMAIL
 # - FIREBASE_PRIVATE_KEY          # PEM string with \n preserved (wrangler will store as single line with \n)
+#
+# Set secrets via:
+#   npx wrangler secret put CLOUDFLARE_ACCOUNT_ID
+#   npx wrangler secret put CLOUDFLARE_API_TOKEN
+#   npx wrangler secret put NVIDIA_API_KEY
+#   npx wrangler secret put FIREBASE_SERVICE_ACCOUNT_JSON
+# Verify:
+#   curl https://tiko-ai-worker.tiko-worker.workers.dev/health
+#   -> should show "cloudflareConfigured": true, "nvidiaConfigured": true
 
 # For production you may also set:
 # [observability]
